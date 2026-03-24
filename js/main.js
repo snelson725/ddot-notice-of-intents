@@ -37,8 +37,7 @@ async function loadCommentTable() {
   const response = await fetch(`${url}?${params}`);
   const data = await response.json();
 
-  const rows = data.features.map(f => f.properties);
-  renderTable(rows);
+  return data.features.map(f => f.properties);
 }
 
 // -----------------------------
@@ -167,15 +166,6 @@ function renderNOISummary(noiSummary, commentRows) {
   });
 }
 
-async function init() {
-  const noiRows = await loadAllNOIs();
-  const commentRows = await loadCommentTable();
-
-  const summary = buildNOISummary(noiRows, commentRows);
-
-  renderNOISummary(summary, commentRows);
-}
-
 // On page load:
 document.addEventListener("DOMContentLoaded", () => {
   const span = document.getElementById("current-date");
@@ -188,3 +178,13 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+
+async function init() {
+  const noiRows = await loadAllNOIs();
+  const commentRows = await loadCommentTable();
+
+  const summary = buildNOISummary(noiRows, commentRows);
+
+  renderNOISummary(summary, commentRows);
+}
