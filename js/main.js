@@ -16,7 +16,7 @@ async function loadLayer() {
   const token = localStorage.getItem("arcgis_token");
 
   if (!token) {
-    console.log("No token found — user must log in");
+    document.getElementById("output").textContent = "You must log in first.";
     return;
   }
 
@@ -32,5 +32,5 @@ async function loadLayer() {
   const response = await fetch(`${url}?${params}`);
   const data = await response.json();
 
-  console.log("Layer data:", data);
+  document.getElementById("output").textContent = JSON.stringify(data, null, 2);
 }
