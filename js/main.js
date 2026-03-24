@@ -46,17 +46,15 @@ async function loadLayer() {
 // -----------------------------
 
 function renderTable(rows) {
-  const table = new Tabulator("#table", {
-    data: rows,
-    layout: "fitColumns",
-    pagination: "local",
-    paginationSize: 20,
-    movableColumns: true,
-    initialSort: [
-      { column: "CreationDate", dir: "desc" }
-    ],
+const table = new Tabulator("#table", {
+  data: rows,
+  layout: "fitColumns",
+  pagination: "local",
+  paginationSize: 20,
+  movableColumns: true,
 
-    rowFormatter: function(row) {
+  // Add this:
+  rowFormatter: function(row) {
     const data = row.getData();
 
     // Create a hidden details element
@@ -87,16 +85,25 @@ function renderTable(rows) {
     holder.style.display = holder.style.display === "none" ? "block" : "none";
   },
 
-    columns: [
-      { title: "NOI ID", field: "noi_id", headerFilter: "input" },
-      { title: "Closing Date", field: "closing_date", formatter: formatDate},
-      { title: "DDOT Contact", field: "ddot_contact", headerFilter: "input" },
-      { title: "Comment Date", field: "CreationDate", sorter: "number", formatter: formatDate },
-      { title: "Your Name", field: "your_name" },
-      { title: "Email", field: "email_address" },
-      { title: "Comment", field: "comment_here", widthGrow: 3 }
-    ]
-  });
+  columns: [
+    { title: "NOI ID", field: "noi_id", headerFilter: "input" },
+    { title: "Closing Date", field: "closing_date", sorter: "date", formatter: formatDate },
+    { title: "DDOT Contact", field: "ddot_contact", headerFilter: "input" },
+    { title: "Date of Comment", field: "CreationDate", sorter: "number", formatter: formatDate },
+    { title: "Commenter Name", field: "your_name" },
+    { title: "Email", field: "email_address" },
+
+    // Comment column stays short
+    {
+      title: "Comment",
+      field: "comment_here",
+      formatter: function(cell) {
+        const text = cell.getValue() || "";
+        return text.length > 60 ? text.slice(0, 60) + "…" : text;
+      }
+    }
+  ]
+});
 
   // Add CSV download button
   document.getElementById("download").onclick = () => {
