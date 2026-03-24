@@ -58,6 +58,15 @@ async function loadNOILayer(url, token) {
   return data.features.map(f => f.properties);
 }
 
+function normalizeNOI(noi) {
+  return {
+    noi_id: noi.noi_number,  // match comments table
+    ddot_contact: noi.email_for_point_of_contact,
+    noititle: noi.project_description || "",
+    raw: noi  // keep original in case you need more fields later
+  };
+}
+
 async function loadAllNOIs() {
   const token = localStorage.getItem("arcgis_token");
 
@@ -71,8 +80,12 @@ async function loadAllNOIs() {
     loadNOILayer(polyURL, token)
   ]);
 
-  return [...points, ...lines, ...polys];
-}
+  // Normalize all three tables
+  return [
+    ...points.map(normalizeNOI),
+    ...lines.map(normalizeNOI),
+    ...polys.map(normalizeNOI)
+  ];}
 
 
 
