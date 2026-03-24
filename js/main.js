@@ -16,7 +16,7 @@ function login() {
 // -----------------------------
 // Load Secured Feature Layer
 // -----------------------------
-async function loadLayer() {
+async function loadCommentTable() {
   const token = localStorage.getItem("arcgis_token");
 
   if (!token) {
@@ -63,6 +63,7 @@ function normalizeNOI(noi) {
     noi_id: noi.noi_number,  // match comments table
     ddot_contact: noi.email_for_point_of_contact,
     noititle: noi.project_description || "",
+    closing_date: noi.closing_date,
     raw: noi  // keep original in case you need more fields later
   };
 }
@@ -93,28 +94,6 @@ async function loadAllNOIs() {
 // Render Table
 // -----------------------------
 
-function renderTable(rows) {
-  const summaryData = buildSummary(rows);
-
-  const summaryTable = new Tabulator("#summary-table", {
-    data: summaryData,
-    layout: "fitColumns",
-    pagination: "local",
-    paginationSize: 20,
-    initialSort: [{ column: "comment_count", dir: "desc" }],
-    columns: [
-      { title: "Closing Date", field: "closing_date", formatter: formatDate },
-      { title: "NOI ID", field: "noi_id", headerFilter: "input" },
-      { title: "Title", field: "noititle", headerFilter: "input" },
-      { title: "DDOT Contact", field: "ddot_contact", headerFilter: "input" },
-      { title: "Comments", field: "comment_count", sorter: "number" }
-    ],
-    rowClick: function (e, row) {
-      const noiId = row.getData().noi_id;
-      showDetailTable(noiId, rows);
-    }
-  });
-}
 function showDetailTable(noiId, commentRows) {
   const detailRows = commentRows.filter(r => r.noi_id === noiId);
 
@@ -167,24 +146,6 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-// Summary Table
-function buildSummary(rows) {
-  const summaryMap = {};
-
-  rows.forEach(r => {
-    const id = r.noi_id || "Unknown NOI";
-    if (!summaryMap[id]) {
-      summaryMap[id] = {
-        noi_id: id,
-        ddot_contact: r.ddot_contact || "",
-        comment_count: 0
-      };
-    }
-    summaryMap[id].comment_count += 1;
-  });
-
-  return Object.values(summaryMap);
-}
 
 function buildNOISummary(noiRows, commentRows) {
   const commentCount = {};
