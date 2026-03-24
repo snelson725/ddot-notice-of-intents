@@ -55,10 +55,43 @@ function renderTable(rows) {
     initialSort: [
       { column: "CreationDate", dir: "desc" }
     ],
+
+    rowFormatter: function(row) {
+    const data = row.getData();
+
+    // Create a hidden details element
+    const holder = document.createElement("div");
+    holder.style.display = "none";
+    holder.style.padding = "10px";
+    holder.style.background = "#fafafa";
+    holder.style.borderTop = "1px solid #ddd";
+
+    holder.innerHTML = `
+      <strong>Full Comment:</strong><br>
+      <div style="white-space: pre-wrap; margin-top: 6px;">
+        ${data.comment_here || "No comment provided"}
+      </div>
+    `;
+
+    row.getElement().appendChild(holder);
+
+    // Store reference for toggling
+    row._detailsHolder = holder;
+  },
+
+  // Add a click handler to toggle visibility
+  rowClick: function(e, row) {
+    const holder = row._detailsHolder;
+    if (!holder) return;
+
+    holder.style.display = holder.style.display === "none" ? "block" : "none";
+  },
+
     columns: [
       { title: "NOI ID", field: "noi_id", headerFilter: "input" },
+      { title: "Closing Date", field: "closing_date", formatter: formatDate},
       { title: "DDOT Contact", field: "ddot_contact", headerFilter: "input" },
-      { title: "Creation Date", field: "CreationDate", sorter: "number", formatter: formatDate },
+      { title: "Comment Date", field: "CreationDate", sorter: "number", formatter: formatDate },
       { title: "Your Name", field: "your_name" },
       { title: "Email", field: "email_address" },
       { title: "Comment", field: "comment_here", widthGrow: 3 }
