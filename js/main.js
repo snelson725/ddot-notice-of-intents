@@ -42,6 +42,41 @@ async function loadLayer() {
 }
 
 // -----------------------------
+// Load NOI Feature Layer
+// -----------------------------
+async function loadNOILayer(url, token) {
+  const params = new URLSearchParams({
+    where: "1=1",
+    outFields: "*",
+    f: "geojson",
+    token
+  });
+
+  const response = await fetch(`${url}?${params}`);
+  const data = await response.json();
+
+  return data.features.map(f => f.properties);
+}
+
+async function loadAllNOIs() {
+  const token = localStorage.getItem("arcgis_token");
+
+  const pointURL = "URL_TO_POINT_LAYER";
+  const lineURL = "URL_TO_LINE_LAYER";
+  const polyURL = "URL_TO_POLYGON_LAYER";
+
+  const [points, lines, polys] = await Promise.all([
+    loadNOILayer(pointURL, token),
+    loadNOILayer(lineURL, token),
+    loadNOILayer(polyURL, token)
+  ]);
+
+  return [...points, ...lines, ...polys];
+}
+
+
+
+// -----------------------------
 // Render Table
 // -----------------------------
 
@@ -67,9 +102,8 @@ function renderTable(rows) {
     }
   });
 }
-
-function showDetailTable(noiId, allRows) {
-  const detailRows = allRows.filter(r => r.noi_id === noiId);
+function showDetailTable(noiId, commentRows) {
+  const detailRows = commentRows.filter(r => r.noi_id === noiId);
 
   document.getElementById("detail-title").textContent =
     `Comments for NOI: ${noiId}`;
@@ -91,15 +125,12 @@ function showDetailTable(noiId, allRows) {
         formatter: cell => {
           const text = cell.getValue() || "";
           return text.length > 60 ? text.slice(0, 60) + "…" : text;
-        },
-        cellClick: function (e, cell) {
-          const full = cell.getValue() || "";
-          alert(full); // or use your expandable panel
         }
       }
     ]
   });
 }
+
 
 // Format date
 function formatDate(cell) {
@@ -140,4 +171,51 @@ function buildSummary(rows) {
   });
 
   return Object.values(summaryMap);
+}
+
+function buildNOISummary(noiRows, commentRows) {
+  const commentCount = {};
+
+  commentRows.forEach(c => {
+    const id = c.noi_id;
+    if (!commentCount[id]) commentCount[id] = 0;
+    commentCount[id] += 1;
+  });
+
+  return noiRows.map(noi => ({
+    noi_id: noi.noi_id,
+    ddot_contact: noi.ddot_contact,
+    noititle: noi.noititle,
+    comment_count: commentCount[noi.noi_id] || 0
+  }));
+}
+
+function renderNOISummary(noiSummary, commentRows) {
+  new Tabulator("#summary-table", {
+    data: noiSummary,
+    layout: "fitColumns",
+    pagination: "local",
+    paginationSize: 20,
+    initialSort: [{ column: "comment_count", dir: "desc" }],
+    columns: [
+      { title: "NOI ID", field: "noi_id", headerFilter: "input" },
+      { title: "DDOT Contact", field: "ddot_contact", headerFilter: "input" },
+      { title: "Title", field: "noititle", headerFilter: "input" },
+      { title: "Comments", field: "comment_count", sorter: "number" }
+    ],
+    rowClick: function (e, row) {
+      const noiId = row.getData().noi_id;
+      showDetailTable(noiId, commentRows);
+    }
+  });
+}
+
+
+async function init() {
+  const noiRows = await loadAllNOIs();
+  const commentRows = await loadCommentTable();
+
+  const summary = buildNOISummary(noiRows, commentRows);
+
+  renderNOISummary(summary, commentRows);
 }
