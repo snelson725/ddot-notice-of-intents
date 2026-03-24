@@ -20,6 +20,12 @@ html, body {
     padding: 0;
 }
 
+#current-date {
+    font-weight: 200!important;
+    color: white;
+    font-size: 12pt!important;
+}
+
 .navbar h1 {
     margin-left: 200px;
     line-height: 80px;

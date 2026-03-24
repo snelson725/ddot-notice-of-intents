@@ -1,51 +1,71 @@
+console.log("main.js loaded");
 
-const CLIENT_ID = '2yXDpCVxR7lvhfgs';
+// -----------------------------
+// API Calls
+// -----------------------------
 
-// Redirect user to ArcGIS Online login
-function login() {
-  const redirectUri = "https://snelson725.github.io/ddot-notice-of-intents/auth/callback";
-
-  const url = new URL("https://www.arcgis.com/sharing/rest/oauth2/authorize");
-  url.searchParams.set("client_id", CLIENT_ID);
-  url.searchParams.set("response_type", "token"); // implicit flow
-  url.searchParams.set("redirect_uri", redirectUri);
-
-  window.location = url.toString();
+async function loadSummary() {
+  const res = await fetch("http://localhost:3000/api/summary");
+  return res.json();
 }
 
-// Load tables
-async function loadCommentTable() {
-  return fetch("http://localhost:3000/api/comments").then(r => r.json());
-}
-
-async function loadAllNOIs() {
-  return fetch("http://localhost:3000/api/nois").then(r => r.json());
-}
-
-
-function normalizeNOI(noi) {
-  return {
-    noi_id: noi.noi_number,  // match comments table
-    ddot_contact: noi.email_for_point_of_contact,
-    noititle: noi.project_description || "",
-    closing_date: noi.closing_date,
-    raw: noi  // keep original in case you need more fields later
-  };
+async function loadCommentsForNOI(noiId) {
+  const res = await fetch(`http://localhost:3000/api/comments/${noiId}`);
+  return res.json();
 }
 
 // -----------------------------
-// Render Tables
+// Render Summary Table
 // -----------------------------
 
-function showDetailTable(noiId, commentRows) {
-  const detailRows = commentRows.filter(r => r.noi_id === noiId);
+function renderNOISummary(summary) {
+  console.log("Rendering summary table");
+
+  if (window.summaryTable) {
+    window.summaryTable.destroy();
+  }
+
+  window.summaryTable = new Tabulator("#summary-table", {
+    data: summary,
+    layout: "fitColumns",
+    pagination: "local",
+    paginationSize: 20,
+    initialSort: [{ column: "comment_count", dir: "desc" }],
+    columns: [
+      { title: "NOI ID", field: "noi_id", headerFilter: "input" },
+      { title: "DDOT Contact", field: "ddot_contact", headerFilter: "input" },
+      { title: "Title", field: "noititle", headerFilter: "input" },
+      { title: "Closing Date", field: "closing_date" },
+      { title: "Comments", field: "comment_count", sorter: "number" }
+    ],
+
+    rowClick: async function (e, row) {
+      console.log("Row clicked:", row.getData());
+      const noiId = row.getData().noi_id;
+
+      const comments = await loadCommentsForNOI(noiId);
+      renderDetailTable(noiId, comments);
+    }
+  });
+}
+
+// -----------------------------
+// Render Detail Table
+// -----------------------------
+
+function renderDetailTable(noiId, comments) {
+  console.log("Rendering detail table for", noiId);
 
   document.getElementById("detail-title").textContent =
     `Comments for NOI: ${noiId}`;
   document.getElementById("detail-title").style.display = "block";
 
-  new Tabulator("#detail-table", {
-    data: detailRows,
+  if (window.detailTable) {
+    window.detailTable.destroy();
+  }
+
+  window.detailTable = new Tabulator("#detail-table", {
+    data: comments,
     layout: "fitColumns",
     pagination: "local",
     paginationSize: 10,
@@ -66,76 +86,24 @@ function showDetailTable(noiId, commentRows) {
   });
 }
 
+// -----------------------------
+// Helpers
+// -----------------------------
 
-// Format date
 function formatDate(cell) {
   const value = cell.getValue();
   if (!value) return "";
-  const date = new Date(value);
-  return date.toLocaleDateString();
+  return new Date(value).toLocaleDateString();
 }
 
-function buildNOISummary(noiRows, commentRows) {
-  const commentCount = {};
+// -----------------------------
+// Initialize
+// -----------------------------
 
-  commentRows.forEach(c => {
-    const id = c.noi_id;
-    if (!commentCount[id]) commentCount[id] = 0;
-    commentCount[id] += 1;
-  });
+document.addEventListener("DOMContentLoaded", async () => {
+  document.getElementById("current-date").textContent =
+    new Date().toLocaleDateString();
 
-  return noiRows.map(noi => ({
-    noi_id: noi.noi_id,
-    ddot_contact: noi.ddot_contact,
-    noititle: noi.noititle,
-    comment_count: commentCount[noi.noi_id] || 0
-  }));
-}
-
-function renderNOISummary(noiSummary, commentRows) {
-  new Tabulator("#summary-table", {
-    data: noiSummary,
-    layout: "fitColumns",
-    pagination: "local",
-    paginationSize: 20,
-    initialSort: [{ column: "comment_count", dir: "desc" }],
-    columns: [
-      { title: "NOI ID", field: "noi_id", headerFilter: "input" },
-      { title: "DDOT Contact", field: "ddot_contact", headerFilter: "input" },
-      { title: "Title", field: "noititle", headerFilter: "input" },
-      { title: "Comments", field: "comment_count", sorter: "number" }
-    ],
-    rowClick: function (e, row) {
-      const noiId = row.getData().noi_id;
-      showDetailTable(noiId, commentRows);
-    }
-  });
-}
-
-// On page load:
-document.addEventListener("DOMContentLoaded", () => {
-  const span = document.getElementById("current-date");
-  if (span) {
-    const today = new Date();
-    span.textContent = today.toLocaleDateString(undefined, {
-      year: "numeric",
-      month: "long",
-      day: "numeric"
-    });
-  }
-
-  const token = localStorage.getItem("arcgis_token");
-  if (token) {
-    init();
-  }
+  const summary = await loadSummary();
+  renderNOISummary(summary);
 });
-
-
-async function init() {
-  const noiRows = await loadAllNOIs();
-  const commentRows = await loadCommentTable();
-
-  const summary = buildNOISummary(noiRows, commentRows);
-
-  renderNOISummary(summary, commentRows);
-}

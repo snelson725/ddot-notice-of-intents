@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const fetch = require("node-fetch"); // ensure v2 is installed
 const { fetchLayer } = require("../services/arcgis");
 const { getArcGISToken } = require("../services/arcgisAuth");
 
@@ -12,9 +11,34 @@ const COMMENTS_URL =
 // -----------------------------
 router.get("/", async (req, res) => {
   try {
-    const token = await getArcGISToken();   // <-- now inside async function
-    const rows = await fetchLayer(COMMENTS_URL, token);
-    res.json(rows);
+    const token = await getArcGISToken();
+    const features = await fetchLayer(COMMENTS_URL, token);
+
+    // Normalize the ArcGIS attributes into your API format
+    const normalized = features.map(f => ({
+      objectid: f.objectid,
+      globalid: f.globalid,
+      CreationDate: f.CreationDate,
+      EditDate: f.EditDate,
+
+      // 🔥 THIS is the field your summary API needs
+      noi_id: f.noi_id,
+
+      // (this is null in your data, but we keep it)
+      noi_number: f.noi_number,
+
+      submission_date: f.submission_date,
+      response: f.response,
+      response_date: f.response_date,
+      your_name: f.your_name,
+      email_address: f.email_address,
+      your_home_address: f.your_home_address,
+      noititle: f.noititle,
+      ddot_contact: f.ddot_contact,
+      comment_here: f.comment_here
+    }));
+
+    res.json(normalized);
   } catch (err) {
     console.error("Error loading comments:", err);
     res.status(500).json({ error: "Failed to load comments" });
@@ -22,4 +46,3 @@ router.get("/", async (req, res) => {
 });
 
 module.exports = router;
-
