@@ -46,59 +46,57 @@ async function loadLayer() {
 // -----------------------------
 
 function renderTable(rows) {
+  const summaryData = buildSummary(rows);
 
-  let currentCommentRowId = null;
-
-  const table = new Tabulator("#table", {
-
-  data: rows,
-  layout: "fitColumns",
-  pagination: "local",
-  paginationSize: 20,
-  movableColumns: true,
-  initialSort: [{ column: "CreationDate", dir: "desc" }],
-  columns: [
-    { title: "NOI ID", field: "noi_id", headerFilter: "input" },
-    { title: "DDOT Contact", field: "ddot_contact", headerFilter: "input" },
-    { title: "Creation Date", field: "CreationDate", sorter: "number", formatter: formatDate },
-    { title: "Your Name", field: "your_name" },
-    { title: "Email", field: "email_address" },
-    {
-      title: "Comment",
-      field: "comment_here",
-      widthGrow: 3,
-      formatter: function (cell) {
-        const text = cell.getValue() || "";
-        return text.length > 60 ? text.slice(0, 60) + "…" : text;
-      },
-      cellClick: function (e, cell) {
-        const row = cell.getRow();
-        const data = row.getData();
-        const fullComment = data.comment_here || "No comment provided";
-
-        const detailBox = document.getElementById("comment-detail");
-        const detailText = document.getElementById("comment-text");
-
-        // If clicking the same row again, toggle hide
-        if (currentCommentRowId === row.getIndex() && detailBox.style.display !== "none") {
-          detailBox.style.display = "none";
-          currentCommentRowId = null;
-          return;
-        }
-
-        // Show or update the detail panel
-        detailText.textContent = fullComment;
-        detailBox.style.display = "block";
-        currentCommentRowId = row.getIndex();
-      }
+  const summaryTable = new Tabulator("#summary-table", {
+    data: summaryData,
+    layout: "fitColumns",
+    pagination: "local",
+    paginationSize: 20,
+    initialSort: [{ column: "comment_count", dir: "desc" }],
+    columns: [
+      { title: "NOI ID", field: "noi_id", headerFilter: "input" },
+      { title: "DDOT Contact", field: "ddot_contact", headerFilter: "input" },
+      { title: "Comments", field: "comment_count", sorter: "number" }
+    ],
+    rowClick: function (e, row) {
+      const noiId = row.getData().noi_id;
+      showDetailTable(noiId, rows);
     }
-  ]
-});
+  });
+}
 
-  // Add CSV download button
-  document.getElementById("download").onclick = () => {
-    table.download("csv", "ddot_noi_data.csv");
-  };
+function showDetailTable(noiId, allRows) {
+  const detailRows = allRows.filter(r => r.noi_id === noiId);
+
+  document.getElementById("detail-title").textContent =
+    `Comments for NOI: ${noiId}`;
+  document.getElementById("detail-title").style.display = "block";
+
+  new Tabulator("#detail-table", {
+    data: detailRows,
+    layout: "fitColumns",
+    pagination: "local",
+    paginationSize: 10,
+    columns: [
+      { title: "Creation Date", field: "CreationDate", formatter: formatDate },
+      { title: "Your Name", field: "your_name" },
+      { title: "Email", field: "email_address" },
+      {
+        title: "Comment",
+        field: "comment_here",
+        widthGrow: 3,
+        formatter: cell => {
+          const text = cell.getValue() || "";
+          return text.length > 60 ? text.slice(0, 60) + "…" : text;
+        },
+        cellClick: function (e, cell) {
+          const full = cell.getValue() || "";
+          alert(full); // or use your expandable panel
+        }
+      }
+    ]
+  });
 }
 
 // Format date
@@ -107,4 +105,37 @@ function formatDate(cell) {
   if (!value) return "";
   const date = new Date(value);
   return date.toLocaleDateString();
+}
+
+// On page load:
+document.addEventListener("DOMContentLoaded", () => {
+  const span = document.getElementById("current-date");
+  if (span) {
+    const today = new Date();
+    span.textContent = today.toLocaleDateString(undefined, {
+      year: "numeric",
+      month: "long",
+      day: "numeric"
+    });
+  }
+});
+
+
+// Summary Table
+function buildSummary(rows) {
+  const summaryMap = {};
+
+  rows.forEach(r => {
+    const id = r.noi_id || "Unknown NOI";
+    if (!summaryMap[id]) {
+      summaryMap[id] = {
+        noi_id: id,
+        ddot_contact: r.ddot_contact || "",
+        comment_count: 0
+      };
+    }
+    summaryMap[id].comment_count += 1;
+  });
+
+  return Object.values(summaryMap);
 }
