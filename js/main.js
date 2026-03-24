@@ -88,10 +88,8 @@ async function loadAllNOIs() {
     ...polys.map(normalizeNOI)
   ];}
 
-
-
 // -----------------------------
-// Render Table
+// Render Tables
 // -----------------------------
 
 function showDetailTable(noiId, commentRows) {
@@ -132,21 +130,6 @@ function formatDate(cell) {
   return date.toLocaleDateString();
 }
 
-// On page load:
-document.addEventListener("DOMContentLoaded", () => {
-  const span = document.getElementById("current-date");
-  if (span) {
-    const today = new Date();
-    span.textContent = today.toLocaleDateString(undefined, {
-      year: "numeric",
-      month: "long",
-      day: "numeric"
-    });
-  }
-});
-
-
-
 function buildNOISummary(noiRows, commentRows) {
   const commentCount = {};
 
@@ -184,7 +167,6 @@ function renderNOISummary(noiSummary, commentRows) {
   });
 }
 
-
 async function init() {
   const noiRows = await loadAllNOIs();
   const commentRows = await loadCommentTable();
@@ -193,3 +175,16 @@ async function init() {
 
   renderNOISummary(summary, commentRows);
 }
+
+// On page load:
+document.addEventListener("DOMContentLoaded", () => {
+  const span = document.getElementById("current-date");
+  if (span) {
+    const today = new Date();
+    span.textContent = today.toLocaleDateString(undefined, {
+      year: "numeric",
+      month: "long",
+      day: "numeric"
+    });
+  }
+});
