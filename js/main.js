@@ -61,9 +61,9 @@ async function loadNOILayer(url, token) {
 async function loadAllNOIs() {
   const token = localStorage.getItem("arcgis_token");
 
-  const pointURL = "URL_TO_POINT_LAYER";
-  const lineURL = "URL_TO_LINE_LAYER";
-  const polyURL = "URL_TO_POLYGON_LAYER";
+  const pointURL = "https://services.arcgis.com/neT9SoYxizqTHZPH/arcgis/rest/services/survey123_b0101fe6fa5d4be39fc2ff796c1c7d3b_results/FeatureServer/0/query";
+  const lineURL = "https://services.arcgis.com/neT9SoYxizqTHZPH/arcgis/rest/services/survey123_3f2a5c4cd6dd40f1a33d8473401825d2_results/FeatureServer/0/query";
+  const polyURL = "https://services.arcgis.com/neT9SoYxizqTHZPH/arcgis/rest/services/survey123_283281e5da8c4e688702f2168354358c_results/FeatureServer/0/query";
 
   const [points, lines, polys] = await Promise.all([
     loadNOILayer(pointURL, token),
