@@ -38,6 +38,7 @@ async function loadCommentTable() {
   const data = await response.json();
 
   return data.features.map(f => f.properties);
+  
 }
 
 // -----------------------------
@@ -176,6 +177,11 @@ document.addEventListener("DOMContentLoaded", () => {
       month: "long",
       day: "numeric"
     });
+  }
+
+  const token = localStorage.getItem("arcgis_token");
+  if (token) {
+    init();
   }
 });
 
