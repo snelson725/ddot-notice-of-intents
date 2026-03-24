@@ -46,60 +46,50 @@ async function loadLayer() {
 // -----------------------------
 
 function renderTable(rows) {
-const table = new Tabulator("#table", {
+
+  let currentCommentRowId = null;
+
+  const table = new Tabulator("#table", {
+
   data: rows,
   layout: "fitColumns",
   pagination: "local",
   paginationSize: 20,
   movableColumns: true,
-
-  // Add this:
-  rowFormatter: function(row) {
-    const data = row.getData();
-
-    // Create a hidden details element
-    const holder = document.createElement("div");
-    holder.style.display = "none";
-    holder.style.padding = "10px";
-    holder.style.background = "#fafafa";
-    holder.style.borderTop = "1px solid #ddd";
-
-    holder.innerHTML = `
-      <strong>Full Comment:</strong><br>
-      <div style="white-space: pre-wrap; margin-top: 6px;">
-        ${data.comment_here || "No comment provided"}
-      </div>
-    `;
-
-    row.getElement().appendChild(holder);
-
-    // Store reference for toggling
-    row._detailsHolder = holder;
-  },
-
-  // Add a click handler to toggle visibility
-  rowClick: function(e, row) {
-    const holder = row._detailsHolder;
-    if (!holder) return;
-
-    holder.style.display = holder.style.display === "none" ? "block" : "none";
-  },
-
+  initialSort: [{ column: "CreationDate", dir: "desc" }],
   columns: [
     { title: "NOI ID", field: "noi_id", headerFilter: "input" },
-    { title: "Closing Date", field: "closing_date", sorter: "date", formatter: formatDate },
     { title: "DDOT Contact", field: "ddot_contact", headerFilter: "input" },
-    { title: "Date of Comment", field: "CreationDate", sorter: "number", formatter: formatDate },
-    { title: "Commenter Name", field: "your_name" },
+    { title: "Creation Date", field: "CreationDate", sorter: "number", formatter: formatDate },
+    { title: "Your Name", field: "your_name" },
     { title: "Email", field: "email_address" },
-
-    // Comment column stays short
     {
       title: "Comment",
       field: "comment_here",
-      formatter: function(cell) {
+      widthGrow: 3,
+      formatter: function (cell) {
         const text = cell.getValue() || "";
         return text.length > 60 ? text.slice(0, 60) + "…" : text;
+      },
+      cellClick: function (e, cell) {
+        const row = cell.getRow();
+        const data = row.getData();
+        const fullComment = data.comment_here || "No comment provided";
+
+        const detailBox = document.getElementById("comment-detail");
+        const detailText = document.getElementById("comment-text");
+
+        // If clicking the same row again, toggle hide
+        if (currentCommentRowId === row.getIndex() && detailBox.style.display !== "none") {
+          detailBox.style.display = "none";
+          currentCommentRowId = null;
+          return;
+        }
+
+        // Show or update the detail panel
+        detailText.textContent = fullComment;
+        detailBox.style.display = "block";
+        currentCommentRowId = row.getIndex();
       }
     }
   ]
