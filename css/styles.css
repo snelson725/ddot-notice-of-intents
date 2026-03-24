@@ -11,6 +11,7 @@ body {
 .navbar {
     width: 100%;
     background-color: #293e6b;
+    height: 50px;
     color: white;
 }
 
