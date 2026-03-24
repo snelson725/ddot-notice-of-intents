@@ -1,4 +1,11 @@
 body {
     font-family: 'Inter', sans-serif;
+    width: 80%;
+}
+
+.navbar {
+    width: 100%;
+    background-color: #293e6b;
+    color: white;
 }
 
