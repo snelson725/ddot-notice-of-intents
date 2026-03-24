@@ -3,6 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <title>DDOT Notice of Intents</title>
+  
+  
+  <link href="https://unpkg.com/tabulator-tables@5.6.0/dist/css/tabulator.min.css" rel="stylesheet">
+  <script src="https://unpkg.com/tabulator-tables@5.6.0/dist/js/tabulator.min.js"></script>
+
 </head>
 <body>
 
@@ -10,9 +15,12 @@
   <h2>View and Manage Notices</h2>
 
   <button onclick="login()">Login to ArcGIS</button>
-  <button onclick="loadLayer()">Load Secured Layer</button>
+  <button onclick="loadLayer()">Load NOI Comments</button>
+  <button id="download">Download CSV</button>
 
   <div id="output"></div>
+  <div id="table"></div>
+
 
   <script src="js/main.js"></script>
 </body>

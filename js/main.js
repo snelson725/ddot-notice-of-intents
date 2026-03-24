@@ -44,42 +44,37 @@ async function loadLayer() {
 // -----------------------------
 // Render Table
 // -----------------------------
+
 function renderTable(rows) {
-  if (!rows.length) {
-    document.getElementById("output").textContent = "No data returned.";
-    return;
-  }
-
-  const table = document.createElement("table");
-  table.border = "1";
-  table.style.borderCollapse = "collapse";
-  table.style.marginTop = "20px";
-
-  // Header row
-  const header = document.createElement("tr");
-  Object.keys(rows[0]).forEach(key => {
-    const th = document.createElement("th");
-    th.textContent = key;
-    th.style.padding = "6px";
-    th.style.background = "#eee";
-    header.appendChild(th);
-  });
-  table.appendChild(header);
-
-  // Data rows
-  rows.forEach(row => {
-    const tr = document.createElement("tr");
-    Object.values(row).forEach(value => {
-      const td = document.createElement("td");
-      td.textContent = value === null ? "" : value;
-      td.style.padding = "6px";
-      tr.appendChild(td);
-    });
-    table.appendChild(tr);
+  const table = new Tabulator("#table", {
+    data: rows,
+    layout: "fitColumns",
+    pagination: "local",
+    paginationSize: 20,
+    movableColumns: true,
+    initialSort: [
+      { column: "CreationDate", dir: "desc" }
+    ],
+    columns: [
+      { title: "NOI ID", field: "noi_id", headerFilter: "input" },
+      { title: "DDOT Contact", field: "ddot_contact", headerFilter: "input" },
+      { title: "Creation Date", field: "CreationDate", sorter: "number", formatter: formatDate },
+      { title: "Your Name", field: "your_name" },
+      { title: "Email", field: "email_address" },
+      { title: "Comment", field: "comment_here", widthGrow: 3 }
+    ]
   });
 
-  // Insert into page
-  const output = document.getElementById("output");
-  output.innerHTML = "";
-  output.appendChild(table);
+  // Add CSV download button
+  document.getElementById("download").onclick = () => {
+    table.download("csv", "ddot_noi_data.csv");
+  };
+}
+
+// Format date
+function formatDate(cell) {
+  const value = cell.getValue();
+  if (!value) return "";
+  const date = new Date(value);
+  return date.toLocaleDateString();
 }
