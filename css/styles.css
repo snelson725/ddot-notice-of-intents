@@ -1,17 +1,28 @@
-body {
+html, body {
     font-family: 'Inter', sans-serif;
     margin: 0;
     padding: 0;
 }
 
 .content {
-    margin: 50px auto;
+    margin: 100px 200px;
 }
 
 .navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 100%;
     background-color: #293e6b;
-    height: 50px;
+    height: 80px;
     color: white;
+    margin: 0;
+    padding: 0;
+}
+
+.navbar h1 {
+    margin-left: 200px;
+    line-height: 80px;
+    font-size: 24px;
 }
 
