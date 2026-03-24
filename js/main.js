@@ -55,7 +55,9 @@ function renderTable(rows) {
     paginationSize: 20,
     initialSort: [{ column: "comment_count", dir: "desc" }],
     columns: [
+      { title: "Closing Date", field: "closing_date", formatter: formatDate },
       { title: "NOI ID", field: "noi_id", headerFilter: "input" },
+      { title: "Title", field: "noititle", headerFilter: "input" },
       { title: "DDOT Contact", field: "ddot_contact", headerFilter: "input" },
       { title: "Comments", field: "comment_count", sorter: "number" }
     ],
