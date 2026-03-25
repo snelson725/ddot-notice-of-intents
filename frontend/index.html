@@ -19,14 +19,32 @@
 
   <div class="layout">
 
-    <!-- LEFT SIDE: NOI BUCKETS -->
-    <section id="buckets" class="left-pane"></section>
+    <!-- LEFT SIDE: Filters + Buckets together -->
+    <div class="left-pane">
 
-    <!-- RIGHT SIDE: COMMENT DETAIL -->
-    <section id="detail" class="right-pane hidden">
+      <div id="filters" class="filters">
+        <input id="filter-noi" type="text" placeholder="Search NOI ID…" />
+        <input id="filter-email" type="text" placeholder="Search contact email…" />
+
+        <select id="filter-status">
+          <option value="all">All NOIs</option>
+          <option value="open">Open Only</option>
+          <option value="closed">Closed Only</option>
+        </select>
+      </div>
+
+      <section id="buckets"></section>
+
+    </div>
+    
+  <section id="detail" class="right-pane hidden">
+    <div class="detail-header">
       <h2 id="detail-title"></h2>
-      <div id="comments"></div>
-    </section>
+      <button id="download-comments" class="download-btn">Download Comments</button>
+    </div>
+    <div id="comments"></div>
+  </section>
+
 
   </div>
 
