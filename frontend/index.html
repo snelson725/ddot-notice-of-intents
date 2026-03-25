@@ -15,23 +15,21 @@
 
   <div class="navbar">
     <h1>DDOT Notice of Intent Viewer</h1>
-    <span id="current-date"></span>
   </div>
 
-  <div class="content">
-    <h2>View and Manage Notices</h2>
-    
-    <h2>NOI Summary</h2>
-    <div id="summary-table"></div>
 
-    <h2 id="detail-title" style="margin-top:40px;">Detail Table</h2>
-    <div id="detail-table">hi</div>
+    <section id="buckets"></section>
 
-    <!-- Tabulator JS -->
-    <script src="https://unpkg.com/tabulator-tables@5.5.0/dist/js/tabulator.min.js"></script>
+    <section id="detail" class="hidden">
+      <h2 id="detail-title"></h2>
+      <div id="comments"></div>
+    </section>
 
-    <!-- Your script -->
-    <script src="js/main.js"></script>
+  <!-- Tabulator JS -->
+  <script src="https://unpkg.com/tabulator-tables@5.5.0/dist/js/tabulator.min.js"></script>
+
+  <!-- Your script -->
+  <script src="js/main.js"></script>
 
 </body>
 </html>

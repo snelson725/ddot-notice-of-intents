@@ -32,16 +32,52 @@ html, body {
     font-size: 24px;
 }
 
-.stats-row {
-    display: flex;
-    justify-content: space-evenly;
-    margin: 20px 200px;
+.bucket {
+  margin-bottom: 40px;
 }
 
-.stats-box {
-    border-radius: 15px;
-    background-color: #efefef;
-    border-left: 5px solid #aaa;
-    padding: 0px 15px;
-    min-width: 150px;
+.bucket-title {
+  font-size: 1.4rem;
+  margin-bottom: 10px;
+}
+
+.noi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 15px;
+}
+
+.noi-card {
+  padding: 15px;
+  border-radius: 8px;
+  background: #f3f4f6;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: 0.2s;
+}
+
+.noi-card:hover {
+  border-color: #3b82f6;
+}
+
+.noi-card.closed {
+  opacity: 0.5;
+}
+
+.comment-count {
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.hidden {
+  display: none;
+}
+
+#comments {
+  margin-top: 20px;
+}
+
+.comment {
+  padding: 12px;
+  border-bottom: 1px solid #ddd;
 }
