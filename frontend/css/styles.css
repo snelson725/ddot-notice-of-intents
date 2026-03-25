@@ -32,23 +32,45 @@ html, body {
     font-size: 24px;
 }
 
+
+.layout {
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  gap: 20px;
+  height: calc(100vh - 100px);
+}
+
+/* LEFT SIDE */
+.left-pane {
+  overflow-y: auto;
+  padding-right: 10px;
+  border-right: 2px solid #ddd;
+}
+
+/* RIGHT SIDE */
+.right-pane {
+  overflow-y: auto;
+  padding-left: 10px;
+}
+
 .bucket {
-  margin-bottom: 40px;
+  margin-bottom: 30px;
 }
 
 .bucket-title {
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   margin-bottom: 10px;
+  font-weight: bold;
 }
 
 .noi-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 15px;
+  grid-template-columns: 1fr;
+  gap: 12px;
 }
 
 .noi-card {
-  padding: 15px;
+  padding: 12px;
   border-radius: 8px;
   background: #f3f4f6;
   cursor: pointer;
@@ -61,23 +83,20 @@ html, body {
 }
 
 .noi-card.closed {
-  opacity: 0.5;
+  opacity: 0.55;
 }
 
 .comment-count {
   font-weight: bold;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
+}
+
+/* COMMENTS */
+.comment {
+  padding: 12px;
+  border-bottom: 1px solid #ddd;
 }
 
 .hidden {
   display: none;
-}
-
-#comments {
-  margin-top: 20px;
-}
-
-.comment {
-  padding: 12px;
-  border-bottom: 1px solid #ddd;
 }

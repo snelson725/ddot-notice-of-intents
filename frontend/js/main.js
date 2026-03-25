@@ -13,7 +13,7 @@ async function loadComments(noiId) {
 // Color scale: 0 → blue, 50 → red
 function commentColor(count) {
   const pct = Math.min(count / 50, 1);
-  const r = Math.floor(59 + pct * (220 - 59));   // 3b82f6 → dc2626
+  const r = Math.floor(59 + pct * (220 - 59));
   const g = Math.floor(130 - pct * 130);
   const b = Math.floor(246 - pct * 246);
   return `rgb(${r}, ${g}, ${b})`;
